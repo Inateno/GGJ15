@@ -34,6 +34,8 @@ function( DE, shared )
         shared.camera1.gui.show();
         shared.camera2.gui.show();
         shared.camera2.gui.sleep = true;
+        shared.player1.enable = false;
+        shared.player2.enable = false;
       }
     };
     sizer.cam1ToCam2 = function()

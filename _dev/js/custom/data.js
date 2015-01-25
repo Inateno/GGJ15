@@ -6,7 +6,7 @@ function()
     , coefFloorReductor : 0.5
     , coefFloorImpulsion: 0.7
     
-    , coefIceReductor   : 1
+    , coefIceReductor   : 0.9999
     , coefIceImpulsion  : 0.05
     
     , coefSlowReductor   : 0.05
@@ -19,8 +19,9 @@ function()
     , attractionForce   : 0.1
     , coefAirControlX   : 0.1
     , coefAirControlY   : 0.01
+    , runsByGame        : 5
     
-    , environmentCollidersTag: [ 'block', 'lava-block', 'ice-block', 'bounce-block', 'spike-block', 'slow-block' ]
+    , environmentCollidersTag: [ 'block', 'lava-block', 'ice-block', 'bounce-block', 'spike-block', 'slow-block', 'saw-block', 'fuck-block' ]
     
     ,character: {
       moveSpeed: 8

@@ -7,7 +7,7 @@ function()
       "floor_large":{
         "name":"floor_large","tag":"block","sprite":"env","isTile":1
         ,"sx":1314,"sy":102,"tw":512,"th":512,"w":512,"h":512
-        ,"collider":{"type":"box","w":462,"h":452,"l":-16,"t":30},"zindex":0
+        ,"collider":{"type":"box","w":512,"h":452,"l":0,"t":30},"zindex":0
       }
       ,"earth":{
         "name":"earth","tag":"env","sprite":"env","isTile":1
@@ -54,8 +54,7 @@ function()
       
       // bg
       ,"trolls": {
-        "name":"trolls","tag":"bg","sprite":"env","isTile":1
-        ,"sx":430,"sy":1488,"tw":1610,"th":544,"w":1610,"h":544
+        "name":"trolls","tag":"bg","sprite":"mountroll","isTile":0
         ,"collider":false,"zindex":0
       }
       ,"mountain1": {
@@ -73,6 +72,17 @@ function()
       ,"goal": {
         "name": "goal", "tag": "event_trigger","sprite":"flag","isTile":0
         ,"collider":{"type":"box","w":100,"h":1500,t:-500},"zindex":0
+      }
+      ,"saw": {
+        "name":"saw","tag":"saw-block","sprite":"env","isTile":1
+        ,"sx":870,"sy":1770,"tw":234,"th":234,"w":234,"h":234
+        ,"collider":{type:"box",w:200,h:200},"zindex":9
+        ,"back":{sx:644,sy:1264,w:210,h:780}
+      }
+      ,"fuck": {
+        "name":"fuck","tag":"fuck-block","sprite":"env","isTile":1
+        ,"sx":82,"sy":1284,"tw":506,"th":754,"w":506,"h":754
+        ,"collider":{"type":"box","w":472,"h":392,"l":-10,"t":180},"zindex":4
       }
     }
     

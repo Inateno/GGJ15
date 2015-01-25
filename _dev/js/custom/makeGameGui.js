@@ -1,5 +1,5 @@
-define( [ 'DREAM_ENGINE', 'shared' ],
-function( DE, shared )
+define( [ 'DREAM_ENGINE', 'shared', 'data' ],
+function( DE, shared, data )
 {
   function makeGui( playerId, camera )
   {
@@ -89,6 +89,7 @@ function( DE, shared )
     goal.enable = false;
     gui.getReady = function()
     {
+      endRun.enable = false;
       goal.enable = false;
       counter.enable = true;
       counter.time = 4;
@@ -98,14 +99,75 @@ function( DE, shared )
     {
       goal.enable = true;
       shared[ "player" + playerId ].locked = true;
+      chrono.removeAutomatism( "count" );
+      shared[ "player" + playerId ].setAnim( "idle" );
+      if ( shared.player1.onGoal && shared.player2.onGoal )
+        DE.trigger( "endRun" );
+    };
+    
+    var endRun = new DE.GameObject();
+    var runCount = new DE.GameObject( {
+      "x": 960, "y": 100
+      ,"renderer": new DE.TextRenderer( { fontSize: 55 }, 900, 60, "Run 1 / x" )
+    } );
+    var totalTimeInc = new DE.GameObject( {
+      "x": 960, "y": 180
+      ,"renderer": new DE.TextRenderer( { fontSize: 55 }, 900, 60, "Total: 00.00.00" )
+    } );
+    var runTime = new DE.GameObject( {
+      "x": 960, "y": 250
+      ,"renderer": new DE.TextRenderer( { fontSize: 55 }, 900, 60, "Round: 00.00.00" )
+    } );
+    var runPosition = new DE.GameObject( {
+      "x": 960, "y": 280
+      ,"renderer": new DE.TextRenderer( { fontSize: 75, fillColor: "green" }, 900, 100, "Player " + playerId + " you lead" )
+    } );
+    endRun.add( totalTimeInc, runTime, runPosition, runCount );
+    endRun.enable = false;
+    gui.add( endRun );
+    gui.endRun = function( otherTime, nrun )
+    {
+      runCount.renderer.setText( "Run " + nrun + " / " + data.runsByGame );
+      runPosition.enable = false;
+      goal.enable = false;
+      // display a total time on center
+      endRun.enable = true;
+      totalTimeInc.renderer.setText( totalTime.renderer.text ); // old total
+      
+      // calc the new one
       totalTime.value += chrono.value;
       totalTime.count();
       totalTime.renderer.setText( "Total: " + totalTime.renderer.text );
-      chrono.removeAutomatism( "count" );
+      
+      // + new time
+      runTime.enable = true;
+      runTime.renderer.fillColor = "green";
+      if ( otherTime < chrono.value )
+        runTime.renderer.fillColor = "red";
+      runTime.renderer.setText( "Round: +" + chrono.renderer.text );
+      
       chrono.value = 0;
       chrono.count();
-      if ( shared.player1.onGoal && shared.player2.onGoal )
-        DE.trigger( "goEdit" );
+      
+      // after a while increment and disable new time
+      setTimeout( function()
+      {
+        totalTimeInc.renderer.setText( totalTime.renderer.text );
+        runTime.enable = false;
+        
+        // display if the player is better
+        if ( runTime.renderer.fillColor == "green" )
+          runPosition.enable = true;
+      }, 4000 );
+    };
+    
+    gui.reset = function()
+    {
+      totalTime.value = 0;
+      chrono.value = 0;
+      chrono.count();
+      totalTime.count();
+      totalTime.renderer.setText( "Total: " + totalTime.renderer.text );
     };
     
     var bar = new DE.GameObject( {
@@ -116,6 +178,15 @@ function( DE, shared )
     
     DE.on( "playReady", gui.getReady );
     DE.on( "player" + playerId + "TouchEnd", gui.playerGoal );
+    
+    gui.getRunScore = function()
+    {
+      return chrono.value;
+    };
+    gui.getScore = function()
+    {
+      return totalTime.value;
+    };
     
     return gui;
   };

@@ -1,5 +1,5 @@
-define( [ 'shared', 'DREAM_ENGINE', 'cameraSizer', 'makeEditorGui', 'makeGameGui', 'Character', 'levelGenerator' ],
-function( shared, DE, cameraSizer, makeEditorGui, makeGameGui, Character, levelGenerator )
+define( [ 'shared', 'DREAM_ENGINE', 'cameraSizer', 'makeEditorGui', 'makeGameGui', 'Character', 'levelGenerator', 'data' ],
+function( shared, DE, cameraSizer, makeEditorGui, makeGameGui, Character, levelGenerator, data )
 {
   function screen( render )
   {
@@ -39,7 +39,7 @@ function( shared, DE, cameraSizer, makeEditorGui, makeGameGui, Character, levelG
       object.onMouseUp = function()
       {
         this.onMouseUp = undefined;
-        this.trigger( "placed" );
+        this.trigger( "placed", this );
         this.renderer.alpha = 1;
         this.scene.isPlacing = false;
       };
@@ -52,7 +52,7 @@ function( shared, DE, cameraSizer, makeEditorGui, makeGameGui, Character, levelG
           this.removeAutomatism( "checkPlacenementInputs" );
           this.onMouseUp = undefined;
           this.renderer.alpha = 1;
-          this.trigger( "placed" );
+          this.trigger( "placed", this );
           this.scene.isPlacing = false;
         }
         else if ( DE.Inputs.key( "cancel-block-" + this.playerId ) )
@@ -77,8 +77,8 @@ function( shared, DE, cameraSizer, makeEditorGui, makeGameGui, Character, levelG
           
           if ( this.position.y - this.biggerOffset.height > this.scene.buildLimits.maxY )
             this.position.y = this.scene.buildLimits.maxY + this.biggerOffset.height;
-          else if ( this.position.y + this.biggerOffset.height < this.scene.buildLimits.minY )
-            this.position.y = this.scene.buildLimits.minY - this.biggerOffset.height;
+          else if ( this.position.y - this.biggerOffset.height < this.scene.buildLimits.minY )
+            this.position.y = this.scene.buildLimits.minY + this.biggerOffset.height;
         }
       };
       setTimeout( function()
@@ -119,6 +119,7 @@ function( shared, DE, cameraSizer, makeEditorGui, makeGameGui, Character, levelG
       {
         this.scenePosition.y = -300;
       } );
+      DE.AudioManager.music.stopAllAndPlay( "edit_music" );
     } );
     DE.on( "endPlaceObject", function( gui )
     {
@@ -148,6 +149,7 @@ function( shared, DE, cameraSizer, makeEditorGui, makeGameGui, Character, levelG
       }
     } );
     
+    var _runs = 0;
     // launch play mode
     DE.on( "goPlay", function()
     {
@@ -162,6 +164,39 @@ function( shared, DE, cameraSizer, makeEditorGui, makeGameGui, Character, levelG
       shared.camera1.moveTo( { z: -15 }, 500 );
       shared.camera2.moveTo( { z: -15 }, 500 );
       shared.sizer.addAutomatism( "toPlay", "toPlay" );
+      DE.AudioManager.music.stopAllAndPlay( "game_music" );
+    } );
+    
+    DE.on( "endRun", function()
+    {
+      ++_runs;
+      if ( _runs < data.runsByGame )
+      {
+        var s2 = shared.camera2.guiPlay.getRunScore();
+        var s1 = shared.camera1.guiPlay.getRunScore();
+        shared.camera1.guiPlay.endRun( s2, _runs );
+        shared.camera2.guiPlay.endRun( s1, _runs );
+        setTimeout( function()
+        {
+          DE.trigger( "goEdit" );
+        }, 8000 );
+      }
+      else
+      {
+        _runs = 0;
+        if ( shared.camera1.guiPlay.getScore() < shared.camera2.guiPlay.getScore() )
+          alert( "player 1 win" );
+        else
+          alert( "player 2 win" );
+        setTimeout( function()
+        {
+          shared.camera1.guiPlay.reset();
+          shared.camera2.guiPlay.reset();
+          shared.camera1.guiBuild.reset();
+          shared.camera2.guiBuild.reset();
+          DE.trigger( "goEdit" );
+        }, 2000 );
+      }
     } );
     
     return {
@@ -169,8 +204,15 @@ function( shared, DE, cameraSizer, makeEditorGui, makeGameGui, Character, levelG
       {
         shared.camera1.sleep = false;
         shared.camera2.sleep = false;
+        shared.camera1.gui.sleep = true;
+        shared.camera2.gui.sleep = true;
         shared.scene1.sleep = false;
         shared.scene2.sleep = false;
+        setTimeout( function()
+        {
+          shared.camera1.gui.sleep = false;
+          shared.camera2.gui.sleep = false;
+        }, 800 );
         loadLevel( levelName );
       }
       , hide: function()
@@ -200,9 +242,9 @@ function( shared, DE, cameraSizer, makeEditorGui, makeGameGui, Character, levelG
     
     // x, y, tag, colliderW, colliderH
     shared.player1 = new Character( shared.levels[ levelName ].startX, shared.levels[ levelName ].startY
-      , "player", 50, 140 ).bindControls( 1 );
+      , "player", 50, 140, "player1" ).bindControls( 1 );
     shared.player2 = new Character( shared.levels[ levelName ].startX, shared.levels[ levelName ].startY
-      , "player", 50, 140 ).bindControls( 2 );
+      , "player", 50, 140, "player2" ).bindControls( 2 );
     shared.player1.enable = false;
     shared.player2.enable = false;
     shared.player1.locked = true;

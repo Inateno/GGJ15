@@ -12,9 +12,13 @@ function( data, DE )
     
     // use sprite
     if ( sprite )
-      this.addRenderer( new DE.SpriteRenderer( { spriteName: sprite } ) );
+      this.addRenderer( new DE.SpriteRenderer( { spriteName: sprite, y: -40 } ) );
     else
       this.addRenderer( new DE.BoxRenderer( { fillColor: "rgb(200,30,30)", alpha: 0.4 }, colliderW - 2, colliderH - 2 ) );
+    
+    var _rdStates = new DE.SpriteRenderer( { spriteName: sprite + "_states", y: -40 } );
+    var _rdRun = this.renderer;
+    _rdRun.setPause( true );
     
     this.moveSpeed     = data.character.moveSpeed;
     this.jumpForce     = data.character.jumpForce;
@@ -25,11 +29,12 @@ function( data, DE )
     this.previousMove  = { x: 0, y: 0 };
     this.onFloor       = false;
     this.jumpedTimes   = 0;
-    this.jumpLimit     = 3;
+    this.jumpLimit     = 2;
     this.locked = false;
     
     // used to work with a sprite
-    this.dir           = 1;
+    this.dir           = -1;
+    this.renderer.currentLine = 1;
     
     var _self = this;
     this.logic = function()
@@ -45,14 +50,28 @@ function( data, DE )
     
     this.move = function()
     {
-      if ( this.locked )
-        return;
       var axeH = this.axes.x;
       
+      if ( this.locked )
+        axeH = 0;
+      
       if ( axeH < 0 )
+      {
         this.dir = -1;
+        this.renderer.currentLine = 1;
+      }
       else if ( axeH > 0 )
+      {
         this.dir = 1;
+        this.renderer.currentLine = 0;
+      }
+      if ( this.onFloor )
+      {
+        if ( axeH != 0 )
+          this.setAnim( "run" );
+        else
+          this.setAnim( "idle" );
+      }
       
       if ( this.gravity.x > data.maxGravityX )
         this.gravity.x = data.maxGravityX;
@@ -73,12 +92,17 @@ function( data, DE )
       this.gravity.y += ( ( _abs( this.gravity.y * this.mass ) > data.maxAttractionForce ) ? 0 : data.attractionForce );
       this.gravity.y = ( this.gravity.y * 1000 >> 0 ) / 1000;
       
+      if ( !this.onFloor && this.gravity.y > 0 )
+        this.setAnim( "fall" );
+        
       if ( !this.onFloor && this.axes.y > 0 )
         this.gravity.y += data.coefAirControlY * this.axes.y;
       
       if ( this.onFloor )
       {
         this.gravity.x += axeH * this.currentBlock.physicCoefImpulsion;
+        if ( this.currentBlock.tag == "slow-block" )
+          this.setAnim( "slow" );
       }
       else if ( axeH != 0 )
       {
@@ -294,6 +318,54 @@ function( data, DE )
       return this;
     };
     
+    this.setAnim = function( type )
+    {
+      if ( this.currentAnim == type )
+        return;
+      this.currentAnim = type;
+      if ( type != "run" && type !="slow" && type != "idle" )
+      {
+        _rdStates.currentLine = this.renderer.currentLine;
+        this.renderers[ 0 ] = _rdStates;
+        this.renderer = _rdStates;
+        this.currentFrame = 0;
+      }
+      else
+      {
+        _rdRun.currentLine = this.renderer.currentLine;
+        this.renderers[ 0 ] = _rdRun;
+        this.renderer = _rdRun;
+        this.currentFrame = 0;
+        this.renderer.isPaused = false;
+        this.renderer.setPause( false );
+      }
+      this.hurted = false;
+      
+      switch( type )
+      {
+        case "idle":
+          this.renderer.currentFrame = 2;
+          this.renderer.setPause( true );
+          break;
+        case "run":
+          this.renderer.eachAnim = 70;
+          break;
+        case "slow":
+          this.renderer.eachAnim = 200;
+          break;
+        case "hurt":
+          this.hurted = true;
+          this.renderer.currentFrame = 2;
+          break;
+        case "jump":
+          this.renderer.currentFrame = 0;
+          break;
+        case "fall":
+          this.renderer.currentFrame = 1;
+          break;
+      }
+    }
+    
     this.jump = function()
     {
       if ( ( !this.onFloor && this.jumpedTimes >= this.jumpLimit ) || this.locked )
@@ -301,6 +373,7 @@ function( data, DE )
       this.jumpedTimes++;
       this.onFloor   = false;
       this.gravity.y = this.jumpForce;
+      this.setAnim( "jump" );
     };
     
     this.resetJump = function()

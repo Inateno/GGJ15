@@ -35,6 +35,7 @@ function( CONFIG )
     // usage name, real name (can contain subpath), extension, parameters
     , imagesList: [
       [ "env", "env/env", "png", { "load": true, "totalFrame": 1, "eachAnim": 1, "totalLine": 1, "isAnimated":false } ]
+      ,[ "mountroll", "env/mountroll", "png", { "load": true, "totalFrame": 1, "eachAnim": 1, "totalLine": 1, "isAnimated":false } ]
       ,[ "flag", "env/flag", "png", { "load": true, "totalFrame": 1, "eachAnim": 1, "totalLine": 1, "isAnimated":false } ]
     ]
   };

@@ -6,6 +6,7 @@ function( DE, shared, createComponent )
     var gui = camera.guiBuild;
     gui.deleteAll();
     gui.playerId = playerId;
+    gui.addedObjects = [];
     
     var objects = JSON.parse( JSON.stringify( shared.levels[ level ].objects ) );
     
@@ -37,7 +38,7 @@ function( DE, shared, createComponent )
       
       if ( shared[ "player" + inputId ].axes.y > 0 && this.tiledPos.y + 1 < tiledObjects.length )
         this.tiledPos.y += 1;
-      else if ( shared[ "player" + inputId ].axes.y < 0 && this.tiledPos.y - 1 > 0 )
+      else if ( shared[ "player" + inputId ].axes.y < 0 && this.tiledPos.y - 1 >= 0 )
         this.tiledPos.y -= 1;
       
       if ( DE.Inputs.key( "valid-block-" + inputId ) )
@@ -48,7 +49,7 @@ function( DE, shared, createComponent )
       
       this.focus( tiledObjects[ this.tiledPos.y ][ this.tiledPos.x ] );
     };
-    gui.selector.addAutomatism( "checkPad", "checkPad", { interval: 150 } );
+    gui.selector.addAutomatism( "checkPad", "checkPad", { interval: 130 } );
     gui.add( gui.emptyContainer );
     
     var obj = null;
@@ -86,6 +87,7 @@ function( DE, shared, createComponent )
         o.on( "cancel-creation", this.restore, this );
         o.on( "placed", this.placed, this );
         o.scene.startPlacingObject( o );
+        o.position.y = o.scene.buildLimits.maxY + o.biggerOffset.height;
         this.quantity--;
         this.renderers[ 1 ].setText( "x" + this.quantity );
         if ( this.quantity == 0 )
@@ -100,8 +102,9 @@ function( DE, shared, createComponent )
         this.renderer.currentLine = 0;
         gui.emptyContainer.enable = true;
       };
-      obj.placed = function()
+      obj.placed = function( o )
       {
+        gui.addedObjects.push( o );
         camera.target = null;
         --gui.objectsToPlace;
         DE.trigger( "endPlaceObject", gui );
@@ -122,6 +125,12 @@ function( DE, shared, createComponent )
     gui.hide = function()
     {
       this.emptyContainer.enable = false;
+    }
+    gui.reset = function()
+    {
+      for ( var i = 0; i < this.addedObjects.length; ++i )
+        this.addedObjects[ i ].askToKill();
+      this.addedObjects = [];
     }
   };
   

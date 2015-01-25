@@ -39,8 +39,15 @@ function( CONFIG )
     // usage name, real name (can contain subpath), extension, parameters
     , imagesList: [      
       [ "env", "env", "png", { "load": true, "totalFrame": 1, "eachAnim": 1, "totalLine": 1, "isAnimated":false } ]
+      ,[ "mountroll", "mountroll", "png", { "load": true, "totalFrame": 1, "eachAnim": 1, "totalLine": 1, "isAnimated":false } ]
+      ,[ "bg_main", "mainscreen", "jpg", { "load": true, "totalFrame": 1, "eachAnim": 1, "totalLine": 1, "isAnimated":false } ]
+      ,[ "panel_main", "panel_main", "png", { "load": true, "totalFrame": 1, "eachAnim": 1, "totalLine": 1, "isAnimated":false } ]
       ,[ "flag", "flag", "png", { "load": true, "totalFrame": 1, "eachAnim": 1, "totalLine": 1, "isAnimated":false } ]
       ,[ "block_icons", "block_icons", "png", { "load": true, "totalFrame": 8, "totalLine": 2, "isAnimated": false } ]
+      ,[ "player1", "character/p1/run", "png", { "load": true, "totalFrame": 6, "totalLine": 2, "eachAnim": 70, "isAnimated": true } ]
+      ,[ "player1_states", "character/p1/states", "png", { "load": true, "totalFrame": 3, "totalLine": 2, "isAnimated": false } ]
+      ,[ "player2", "character/p2/run", "png", { "load": true, "totalFrame": 6, "totalLine": 2, "eachAnim": 70, "isAnimated": true } ]
+      ,[ "player2_states", "character/p2/states", "png", { "load": true, "totalFrame": 3, "totalLine": 2, "isAnimated": false } ]
     ]
   };
   CONFIG.debug.log( "imagesDatas loaded", 3 );

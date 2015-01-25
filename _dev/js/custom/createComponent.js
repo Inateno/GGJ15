@@ -1,5 +1,5 @@
-define( [ 'DREAM_ENGINE', 'shared', 'data' ],
-function( DE, shared, data )
+define( [ 'DREAM_ENGINE', 'shared', 'data', 'Saw' ],
+function( DE, shared, data, Saw )
 {
   function createComponent( el, scene )
   {
@@ -57,6 +57,9 @@ function( DE, shared, data )
         //   } );
         //   scene.doors.push( o );
         //   break;
+        case "saw-block":
+          o = new Saw( el, component, sprite, collider );
+          break;
         default:
           o = new DE.GameObject( {
             "name": el.name, "tag": component.tag
@@ -86,7 +89,8 @@ function( DE, shared, data )
             player.gravity.y = -3;
             player.gravity.x = 2;
             shared[ "camera" + player.playerId ].shake( 10, 10,  500 );
-            // play lava
+            player.setAnim( "hurt" );
+            DE.trigger( "play-random-fx", "big-hurt" );
           } );
           break;
         case "spike-block":
@@ -96,7 +100,8 @@ function( DE, shared, data )
             player.gravity.y = -1.5;
             player.gravity.x = 1;
             shared[ "camera" + player.playerId ].shake( 5, 5,  500 );
-            // sound ouïe / aïe
+            player.setAnim( "hurt" );
+            DE.trigger( "play-random-fx", "hurt" );
           } );
           break;
         case "bounce-block":
@@ -104,9 +109,26 @@ function( DE, shared, data )
           {
             player.onFloor = false;
             player.gravity.y = -5;
-            // sound zbouing / weeeeee
+            player.setAnim( "jump" );
+            DE.trigger( "play-random-fx", "happy" );
           } );
           break;
+        case "fuck-block":
+          o.on( "collision-enter", function( player )
+          {
+            if ( player.position.y + player.collider.height / 2 - 10 > this.position.y - 10
+              || this.lastUse - DE.Time.currentTime < 5000 )
+              return;
+            this.lastUse = Date.now();
+            player.locked = true;
+            setTimeout( function()
+            {
+              player.locked = false;
+            }, 3000 );
+            shared[ "camera" + player.playerId ].shake( 10, 10, 2500 );
+            player.setAnim( "hurt" );
+            DE.trigger( "play-random-fx", "rage" );
+          } );
       }
       
       o.physicCoefReductor = component.physicCoefReductor || data.coefFloorReductor;
@@ -121,6 +143,10 @@ function( DE, shared, data )
         scene.event_triggers.push( o );
       }
       scene.add( o );
+      
+      if ( o.customInit )
+        o.customInit();
+      
       return o;
     }
   }

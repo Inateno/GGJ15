@@ -29,7 +29,6 @@ require.config( {
     , 'DE.inputsList'   : 'datas/inputsList'
     , 'DE.audiosList'   : 'datas/audiosList'
     , 'DE.dictionary'   : 'datas/dictionary'
-    , 'DE.dictionary'   : 'datas/dictionary'
     
     , 'screens.menu' : 'custom/screens/menu'
     , 'screens.game' : 'custom/screens/game'
@@ -42,6 +41,7 @@ require.config( {
     ,'Game'             : 'custom/Game'
     ,'levelGenerator'   : 'custom/levelGenerator'
     ,'Character'        : 'custom/Character'
+    ,'Saw'              : 'custom/Saw'
     ,'data'             : 'custom/data'
     ,'shared'           : 'custom/shared'
     

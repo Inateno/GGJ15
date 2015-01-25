@@ -38,6 +38,7 @@ function( CONFIG )
     ,"cancel-block-1":{"keycodes": [ "G0.B.B", "K.escape", "K.return" ] }
     ,"cancel-block-2":{"keycodes": [ "G1.B.B", "K.escape", "K.return" ] }
     
+    ,"start1":{"keycodes": [ "G0.B.start", "G0.B.A", "K.space", "K.enter" ] }
     ,"start2":{"keycodes": [ "G1.B.start", "G1.B.A", "K.space", "K.enter" ] }
   };
   CONFIG.debug.log( "inputsList loaded", 3 );
